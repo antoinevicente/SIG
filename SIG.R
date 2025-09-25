@@ -8,17 +8,17 @@ library(ggplot2)
 library(readr)
 
 # Définir l'espace de travail
-setwd("D:/SIG/")
+setwd("C:/Users/vicenant/Downloads")
 
 # Importer les données un fichier .parquet
 bpe <- arrow::read_parquet("./BPE24.parquet")
 
 # Importer les données depuis un fichier .csv
-#bpe <- read_delim("data/BPE24.csv", delim=";")
+bpe <- read_delim("data/BPE24.csv", delim=";")
 
 # Aperçu des données
-head(bpe)
 names(bpe)
+head(bpe, n=5)
 
 # Analyse globale du contenu
 dim(bpe)
