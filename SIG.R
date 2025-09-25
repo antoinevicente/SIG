@@ -20,6 +20,10 @@ bpe <- read_delim("data/BPE24.csv", delim=";")
 names(bpe)
 head(bpe, n=5)
 
+# Supprimer des colonnes
+bpe2 <- bpe[, -c(18:67)]
+
+
 # Analyse globale du contenu
 dim(bpe)
 nrow(bpe)
@@ -45,6 +49,7 @@ diversite <- equipements_com %>%
 equipements_type <- bpe %>%
   count(TYPEQU, sort = TRUE) %>%
   mutate(prop = round(n / sum(n) * 100, 1))
+
 
 
 
