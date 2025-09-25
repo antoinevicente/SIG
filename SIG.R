@@ -11,18 +11,20 @@ library(readr)
 setwd("C:/Users/vicenant/Downloads")
 
 # Importer les données un fichier .parquet
-bpe <- arrow::read_parquet("./BPE24.parquet")
+BPE24 <- arrow::read_parquet("./BPE24.parquet")
 
 # Importer les données depuis un fichier .csv
-bpe <- read_delim("data/BPE24.csv", delim=";")
+#BPE24 <- read_delim("data/BPE24.csv", delim=";")
 
 # Aperçu des données
-names(bpe)
-head(bpe, n=5)
+names(BPE24)
+head(BPE24, n=5)
 
 # Supprimer des colonnes
-bpe2 <- bpe[, -c(18:67)]
+bpe <- BPE24[, -c(18:67)]
 
+# Supprimer un objet
+rm(BPE24)
 
 # Analyse globale du contenu
 dim(bpe)
@@ -49,9 +51,4 @@ diversite <- equipements_com %>%
 equipements_type <- bpe %>%
   count(TYPEQU, sort = TRUE) %>%
   mutate(prop = round(n / sum(n) * 100, 1))
-
-
-
-
-
 
