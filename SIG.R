@@ -1,3 +1,6 @@
+# Sauvegarder sur sortie
+#ggsave("./export/*NOM*.png", plot = z, width = 10, height = 8)
+
 # Installer des packages
 install.packages("arrow","dplyr", "ggplot2", "readr")
 
@@ -7,10 +10,10 @@ library(dplyr)
 library(ggplot2)
 library(readr)
 
-# Définir l'espace de travail
-setwd("C:/Users/vicenant/Downloads")
+# Définir le répertoire de travail
+setwd("C:/Users/antoi/Desktop/SIG")
 
-# Importer les données un fichier .parquet
+# Importer les données depuis un fichier .parquet
 BPE24 <- arrow::read_parquet("./BPE24.parquet")
 
 # Importer les données depuis un fichier .csv
@@ -18,10 +21,13 @@ BPE24 <- arrow::read_parquet("./BPE24.parquet")
 
 # Aperçu des données
 names(BPE24)
-head(BPE24, n=5)
+head(BPE24, n=2)
 
-# Supprimer des colonnes
+# Supprimer des colonnes par position
 bpe <- BPE24[, -c(18:67)]
+
+# Supprimer les départements d'outre-mer
+bpe <- bpe[!bpe$DEP %in% c("971", "972", "973", "974", "976"), ]
 
 # Supprimer un objet
 rm(BPE24)
@@ -32,12 +38,12 @@ nrow(bpe)
 ncol(bpe)
 
 # Ouvrir le tableau
-#view(bpe)
+View(bpe)
 
 # Résumé des statistiques descriptives
 summary(bpe)
 
-# Comptage des équipements par commune et par type
+# Compter des équipements par commune et par type
 equipements_com <- bpe %>%
   group_by(DEPCOM, TYPEQU) %>%
   summarise(nb = n(), .groups = "drop")
@@ -51,4 +57,3 @@ diversite <- equipements_com %>%
 equipements_type <- bpe %>%
   count(TYPEQU, sort = TRUE) %>%
   mutate(prop = round(n / sum(n) * 100, 1))
-
