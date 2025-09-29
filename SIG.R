@@ -24,7 +24,7 @@ BPE24 <- arrow::read_parquet("./BPE24.parquet")
 # Aperçu des données
 head(BPE24, n = 5)
 
-# Affiche les noms de colonnes avec leur position
+# Afficher les noms de colonnes avec leur position
 data.frame(Position = 1:ncol(BPE24), Nom = colnames(BPE24))
 
 # Supprimer les départements d'outre-mer
@@ -64,7 +64,10 @@ bpe_sf <- st_as_sf(bpe, coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
 # Lignes supprimées
 cat("Pourcentage de lignes supprimées :", round(nb_na / total_lignes * 100, 2), "%\n")
 
-# -----------------------------
+# Supprimer des colonnes par position
+bpe[, -c(18:67)]
+
+# --------------------------------
 
 # Compter des équipements par commune et par type
 equipements_com <- bpe %>%
