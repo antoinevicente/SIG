@@ -3,12 +3,14 @@
 
 # Installer des packages
 install.packages("arrow","dplyr", "ggplot2", "readr")
+install.packages("sf")
 
 # Charger des packages
 library(arrow)
 library(dplyr)
 library(ggplot2)
 library(readr)
+library(sf)
 
 # Définir le répertoire de travail
 setwd("C:/Users/antoi/Desktop/SIG")
@@ -20,28 +22,49 @@ BPE24 <- arrow::read_parquet("./BPE24.parquet")
 #BPE24 <- read_delim("data/BPE24.csv", delim=";")
 
 # Aperçu des données
-names(BPE24)
-head(BPE24, n=2)
+head(BPE24, n = 5)
 
-# Supprimer des colonnes par position
-bpe <- BPE24[, -c(18:67)]
+# Affiche les noms de colonnes avec leur position
+data.frame(Position = 1:ncol(BPE24), Nom = colnames(BPE24))
 
 # Supprimer les départements d'outre-mer
-bpe <- bpe[!bpe$DEP %in% c("971", "972", "973", "974", "976"), ]
+bpe <- BPE24[!BPE24$DEP %in% c("971", "972", "973", "974", "976"), ]
 
 # Supprimer un objet
-rm(BPE24)
+#rm(BPE24)
+
+# Ouvrir le tableau
+#View(bpe)
 
 # Analyse globale du contenu
 dim(bpe)
-nrow(bpe)
-ncol(bpe)
 
-# Ouvrir le tableau
-View(bpe)
+# Nombre total de lignes
+total_lignes <- nrow(bpe)
 
 # Résumé des statistiques descriptives
 summary(bpe)
+
+# Nombre de NA par colonne
+colSums(is.na(bpe))
+
+# Compter combien de lignes sans coordonnées
+cat(
+  "Nombre de lignes supprimées sans coordonnées :",
+  nb_na <- bpe %>% filter(is.na(LONGITUDE) | is.na(LATITUDE)) %>% nrow(),
+  "\n")
+
+# Supprimer les lignes sans coordonnées
+bpe <- bpe %>%
+  filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
+
+# Transformer en objet spatial
+bpe_sf <- st_as_sf(bpe, coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+# Lignes supprimées
+cat("Pourcentage de lignes supprimées :", round(nb_na / total_lignes * 100, 2), "%\n")
+
+# -----------------------------
 
 # Compter des équipements par commune et par type
 equipements_com <- bpe %>%
@@ -57,3 +80,5 @@ diversite <- equipements_com %>%
 equipements_type <- bpe %>%
   count(TYPEQU, sort = TRUE) %>%
   mutate(prop = round(n / sum(n) * 100, 1))
+
+
