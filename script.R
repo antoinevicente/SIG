@@ -36,10 +36,10 @@ bpe <- BPE24[!BPE24$DEP %in% c("971", "972", "973", "974", "976"), ]
 # Ouvrir le tableau
 #View(bpe)
 
-# Analyse globale du contenu
+# Analyse globale du contenu (nombre de lignes et de colonnes)
 dim(bpe)
 
-# Nombre total de lignes
+# Stocker le nombre total de lignes
 total_lignes <- nrow(bpe)
 
 # Résumé des statistiques descriptives
@@ -67,7 +67,10 @@ cat("Pourcentage de lignes supprimées :", round(nb_na / total_lignes * 100, 2),
 # Supprimer des colonnes par position
 bpe[, -c(18:67)]
 
-# --------------------------------
+
+# ---------------------------------------
+
+
 
 # Compter des équipements par commune et par type
 equipements_com <- bpe %>%
