@@ -1,4 +1,4 @@
-# Sauvegarder sur sortie
+# Exporter une sortie
 #ggsave("./export/*NOM*.png", plot = z, width = 10, height = 8)
 
 # Installer des packages
