@@ -1,11 +1,17 @@
-# Exporter une sortie
+# Supprimer un objet de l'environnement
+#rm()
+
+# Exporter une représentation graphique
 #ggsave("./export/*NOM*.png", plot = z, width = 10, height = 8)
 
-# Installer des packages
-install.packages("arrow","dplyr", "ggplot2", "readr")
-install.packages("sf")
+# Expoter au format CSV
+#write.csv(data, "./bpe_culture_rouen.csv", row.names = FALSE)
 
-# Charger des packages
+# Installer les packages
+#install.packages("arrow","dplyr", "ggplot2", "readr")
+#install.packages("sf")
+
+# Charger les packages
 library(arrow)
 library(dplyr)
 library(ggplot2)
@@ -13,78 +19,47 @@ library(readr)
 library(sf)
 
 # Définir le répertoire de travail
-setwd("C:/Users/antoi/Desktop/SIG")
+setwd("C:/Users/antoi/Desktop/SIGplusplus")
 
-# Importer les données depuis un fichier .parquet
-BPE24 <- arrow::read_parquet("./BPE24.parquet")
-
-# Importer les données depuis un fichier .csv
-#BPE24 <- read_delim("data/BPE24.csv", delim=";")
-
-# Aperçu des données
-head(BPE24, n = 5)
+# Importer les données depuis un fichier au format Parquet
+#BPE24 <- arrow::read_parquet("./BPE24.parquet")
 
 # Afficher les noms de colonnes avec leur position
-data.frame(Position = 1:ncol(BPE24), Nom = colnames(BPE24))
+#data.frame(Position = 1:ncol(BPE24), Nom = colnames(BPE24))
 
-# Supprimer les départements d'outre-mer
-bpe <- BPE24[!BPE24$DEP %in% c("971", "972", "973", "974", "976"), ]
+# Charger le fichier CSV contenant le codes des communes de la métropole de Rouen
+#CODCOM <- read.csv("./comMetroRouen.csv", header = FALSE, sep = ";", stringsAsFactors = FALSE)
 
-# Supprimer un objet
-#rm(BPE24)
+# Transformer le fichier CSV en valeurs 
+#CODCOM <- as.vector(as.matrix(CODCOM))
 
-# Ouvrir le tableau
-#View(bpe)
+# Vérifier
+#head(CODCOM, n = 3)
 
-# Analyse globale du contenu (nombre de lignes et de colonnes)
-dim(bpe)
+# Filtrer les équipements de la métropole de Rouen
+#equip_rouen <- filter(BPE24, CODPOS %in% CODCOM)
 
-# Stocker le nombre total de lignes
-total_lignes <- nrow(bpe)
+# Afficher le nombre de lignes avec au moins une coordonnée manquante
+#sum(is.na(equip_rouen$LONGITUDE) | is.na(equip_rouen$LATITUDE))
 
-# Résumé des statistiques descriptives
-summary(bpe)
-
-# Nombre de NA par colonne
-colSums(is.na(bpe))
-
-# Compter combien de lignes sans coordonnées
-cat(
-  "Nombre de lignes supprimées sans coordonnées :",
-  nb_na <- bpe %>% filter(is.na(LONGITUDE) | is.na(LATITUDE)) %>% nrow(),
-  "\n")
-
-# Supprimer les lignes sans coordonnées
-bpe <- bpe %>%
-  filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
+# Supprimer les entités sans coordonnées
+#equip_rouen_clean <- equip_rouen %>% filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
 
 # Transformer en objet spatial
-bpe_sf <- st_as_sf(bpe, coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+#equip_rouen_sf <- st_as_sf(equip_rouen_clean,coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
 
-# Lignes supprimées
-cat("Pourcentage de lignes supprimées :", round(nb_na / total_lignes * 100, 2), "%\n")
+# Filtrer tout les équipements culturels 
+#equip_culture <- equip_rouen[equip_rouen$DOM == "F", ]
 
-# Supprimer des colonnes par position
-bpe[, -c(18:67)]
+# Exporter au format l'objet au fromat au format CSV
+#write.table(equip_culture, "./export/equip_culture_metro.csv", sep = ";", row.names = FALSE, dec = ".")
 
+# Importer le CSV des équipements cultures 
+data <- read.csv("./export/equip_culture_metro.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE)
 
-# ---------------------------------------
+# Aperçu des données
+glimpse(data[, 1:5])
 
-
-
-# Compter des équipements par commune et par type
-equipements_com <- bpe %>%
-  group_by(DEPCOM, TYPEQU) %>%
-  summarise(nb = n(), .groups = "drop")
-
-# Diversité des équipements par commune
-diversite <- equipements_com %>%
-  group_by(DEPCOM) %>%
-  summarise(nb_types = n_distinct(TYPEQU))
-
-# Compter les équipements par type 
-equipements_type <- bpe %>%
-  count(TYPEQU, sort = TRUE) %>%
-  mutate(prop = round(n / sum(n) * 100, 1))
-
+# Filtrer les équipements culturels
+#data <- data[!grepl("^F1", data$TYPEQU), ]
 
